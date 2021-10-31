@@ -1,0 +1,191 @@
+import java.util.*;
+import java.io.*;
+
+public class ContactList implements Iterable<Contact> {
+	
+	private ArrayList<Contact> contactList;
+	/*public String toString() {
+		String printout = "";
+		for (Contact c : contactList) 
+			printout += c.toString() + "\n";
+		return printout;
+	 }*/
+	public ContactList() {// empty Cons.
+		contactList = new ArrayList<>();
+	}
+	
+	public ContactList(Contact [] contacts) {
+		contactList = new ArrayList<>(Arrays.asList(contacts));
+		// methode to initalize using an array of contacts
+	}
+	
+	public Contact findByLastName(String last) {
+		int start = 0;
+		int end = size()-1;
+		while(start<=end) { 
+			int mid = (start+end)/2; 
+			if(last.equals(contactList.get(mid).getLast())) { //compare the last name of the mid contact to this contact
+				return get(mid); 
+			}
+			else if(last.compareTo(contactList.get(mid).getLast())<0) { //creating new endpoint if next last name is larger then provided last
+				end = mid-1;
+			}
+			else { //creating new startpoint if previous last name is lesser then provided last
+				start = mid+1;
+			}
+		}
+		return null; 
+	}
+		
+	public Contact findByPhoneNumber(String phone) {
+		for(Contact stop: contactList) //iterating through 
+			if(stop.getNum().equals(phone)) 
+				return stop;
+		return null;
+		
+	}
+
+	public ContactList findAllByLastInitial(char ch) {
+		ContactList lastIn = new ContactList();
+		for(Contact check: contactList) { //iterating through 
+			if (check.getLast().startsWith(ch+"")) //checking all searched if they start the same
+				lastIn.add(check);
+		}
+		return lastIn;
+	}
+	
+	public ContactList findAllByCity(String city) {
+		ContactList Cities = new ContactList();
+		for(Contact check: contactList) {
+			if (check.getCity().equals(city))
+				Cities.add(check);
+			}
+		return Cities;
+	}
+	public boolean add(Contact contact) {//add method
+		int start = 0, count = 0;
+		int end = size()-1;
+		Contact temp;
+		while(start<=end) { //binary search
+			int mid = (start+end)/2; 
+			temp = this.get(mid); 
+			if(contact.equals(temp)) 
+				return false;
+			else if(contact.compareTo(temp) < 0) 
+				end = mid-1;
+			else
+				start = mid+1;
+		}
+		contactList.add(contact);
+		return true;
+	}
+
+	public int size() {
+		return contactList.size(); //calling and using the built in size() method 
+	}
+	public Contact remove(Object obj){//transition method sending to ArrayList API
+	   Contact make =(Contact) obj;
+	   int delete = contactList.indexOf(make);
+	   return contactList.remove(delete);
+	}
+	
+	public Contact get(int index){ //transition method sending to ArrayList API
+		if(index < 0 || size()<index)
+			throw new IndexOutOfBoundsException();
+		return contactList.get(index);//using ArrayList Api
+	 }
+	
+	public boolean equals(Object obj) {// 
+        if(!(obj instanceof ContactList))
+            return false;
+        ContactList temp = (ContactList) obj;
+        if(contactList.size() != temp.size()) //checking to see if there sizes are different 
+        	return false;
+        
+        Iterator<Contact> iter1,iter2; 
+        iter1 = contactList.iterator(); // turning these into iterable contacts that can be cycled through to find matches
+        iter2 = temp.iterator();
+        while(iter1.hasNext()) 
+        	if(!iter1.next().equals(iter2.next()))
+        		return false;
+        return true; 
+	}
+
+	public String toString() {
+		String printout = "";
+		for (Contact c : contactList) 
+			printout += c.toString() + "\n";
+		return printout;
+	 }
+
+
+	@Override
+	public Iterator<Contact> iterator() {
+		return contactList.iterator();
+	}
+	
+	
+	public static void main(String [] args) { //main method where only the contacts are loaded with info and sent to another method to be printed
+		 Contact one = new Contact("Albert", "Banks", "347-964-1346","2532 Acren 34 st",
+				 "Brooklyn","New York"); // loading first contact with required contact info
+		 Contact two = new Contact("Bob", "Builder", "347-964-1346","2532 Acren 34 st",
+				 "Brooklyn","New York"); // loading second contact...
+		 Contact three = new Contact("David", "Dean", "347-235-4346","5467 Metren Avenue",
+				 "Queens","New York"); // etc...
+		 Contact four = new Contact("John", "Jacobs", "347-964-4436","9134 Bates st",
+				 "Brooklyn","New York"); 
+		 
+		 //spare test contacts
+		 Contact five = new Contact("Kevin", "Kosner", "347-964-4436","912 Kels st",
+				 "St.James","New York"); 
+		 Contact six = new Contact("Bob", "Builder", "347-964-1346","2532 Acren 34 st",
+				 "Brooklyn","New York");
+		 
+		 Contact [] contactlist1 = {one,two,three,four};
+		 
+		 Contact [] contactlist2 = {six,one,four,five};// two spare lists in there own unique order to test equals method
+		 Contact [] contactlist3 = {six,one,four,five};
+		 
+		 Contact [] contactlist4 = {one,two,three,four,five,six};// spare list to test findAllByCity
+		 
+		 ContactList contacts1 = new ContactList(contactlist1);// turning preloaded arrays into ArrayLists
+		 ContactList contacts2 = new ContactList(contactlist2);
+		 ContactList contacts3 = new ContactList(contactlist3);
+		 ContactList contacts4 = new ContactList(contactlist4);
+		 
+		 System.out.println("This is the properly ordered print out of the contact list");
+		 System.out.println(contacts1.toString());
+		 
+		 System.out.println("--------Testing Methods--------");
+		 
+		 System.out.println("Find the Contact with the last name Dean: ");
+		 System.out.println(contacts1.findByLastName("Dean") + "\n");
+		 
+
+		 System.out.println("Find the Contact with the phone number 347-964-4436");
+		 System.out.println(contacts1.findByPhoneNumber("347-964-4436")+ "\n");
+		 
+		 System.out.println("Find the all the Contacts from the city of Brooklyn:"); //double contact is not printed
+		 System.out.println(contacts4.findAllByCity("Brooklyn")); //testing the list with every contact
+		 
+		 System.out.println("Find the all the Contacts with the same last initial ~ B ~ :");
+		 System.out.println(contacts3.findAllByLastInitial('B')); 
+		 
+		 System.out.println("Adding to the list a new Contact that is not there:");
+	 	 System.out.println("Successful: " + contacts1.add(five));
+	 	 
+	 	 System.out.println("Adding to the list a new Contact that is already there:");
+	 	 System.out.println("Successful: " + contacts1.add(six)+ "\n");
+		 
+		 System.out.println("Remove and return the third contact from the list");
+		 System.out.println(contacts1.remove(three) + "\n");
+		 
+		 //testing the equals on the first pair which are equal and the second pair which are not
+		 System.out.println("Are these two seperate lists identical? ");
+		 System.out.println(contacts2.equals(contacts3));
+		 System.out.println("Are these two seperate lists identical? ");
+		 System.out.println(contacts1.equals(contacts3));
+		 
+	}
+	
+}
